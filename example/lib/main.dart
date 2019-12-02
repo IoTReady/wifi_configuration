@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-
-import 'package:flutter/services.dart';
 import 'package:wifi_configuration/wifi_configuration.dart';
 
 void main() => runApp(MyApp());
@@ -11,63 +8,7 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
-//enum wifiStatus {
-//  conected,
-//alreadyConnected,.
-//notConnected ,
-//platformNotSupported,
-//profileAlreadyInstalled,
-//
-//}
-
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-
-  @override
-  void initState() {
-    super.initState();
-    getConnectionState();
-  }
-
-  void getConnectionState() async {
-    var listAvailableWifi = await WifiConfiguration.getWifiList();
-    print("get wifi list : " + listAvailableWifi.toString());
-    WifiConnectionStatus connectionStatus = await WifiConfiguration.connectToWifi(
-        "DarkBe@rs", "DarkBe@rs", "com.example.wifi_configuration_example");
-    print("is Connected : ${connectionStatus}");
-//
-//
-    switch (connectionStatus) {
-      case WifiConnectionStatus.connected:
-        print("connected");
-        break;
-
-      case WifiConnectionStatus.alreadyConnected:
-        print("alreadyConnected");
-        break;
-
-      case WifiConnectionStatus.notConnected:
-        print("notConnected");
-        break;
-
-      case WifiConnectionStatus.platformNotSupported:
-        print("platformNotSupported");
-        break;
-
-      case WifiConnectionStatus.profileAlreadyInstalled:
-        print("profileAlreadyInstalled");
-        break;
-
-      case WifiConnectionStatus.locationNotAllowed:
-        print("locationNotAllowed");
-        break;
-    }
-//
-//    bool isConnected = await WifiConfiguration.isConnectedToWifi("DBWSN5");
-    // String connectionState = await WifiConfiguration.connectedToWifi();
-    //   print("coneection status ${connectionState}");
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -75,20 +16,85 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Center(
-          child: FlatButton(
-            color: Colors.red,
-            child: Text("connect"),
-            onPressed: () async {
-              WifiConnectionStatus connectionStatus = await WifiConfiguration.connectToWifi(
-                  "Ukey-2.4",
-                  "QATest@2019",
-                  "com.example.wifi_configuration_example");
-              print("is Connected : ${connectionStatus}");
-            },
+        body: Padding(
+          padding: const EdgeInsets.all(10),
+          child: ListView(
+            children: <Widget>[
+              RaisedButton(
+                child: Text('scan'),
+                onPressed: updateWifiList,
+              ),
+              Divider(),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: "SSID",
+                ),
+              ),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: "Password",
+                ),
+              ),
+              RaisedButton(
+                child: Text("connect"),
+                onPressed: connect,
+              ),
+              Divider(),
+              RaisedButton(
+                child: Text('disconnect'),
+                onPressed: () async {
+                  print(
+                    "disconnected: ${await WifiConfiguration.disconnect()}",
+                  );
+                },
+              ),
+              Divider(),
+              Text("Connection status: ${connectionStatus}"),
+              Divider(),
+              if (available == null)
+                Row(
+                  children: <Widget>[
+                    Text('Scanning...'),
+                    CircularProgressIndicator(),
+                  ],
+                )
+              else
+                for (var item in available) Text(item?.toString() ?? "")
+            ],
           ),
         ),
       ),
     );
+  }
+
+  WifiConnectionStatus connectionStatus;
+  var available = [];
+  var ssidControl = TextEditingController();
+  var passControl = TextEditingController();
+
+  void updateWifiList() async {
+    setState(() {
+      available = null;
+    });
+    var value = [];
+    try {
+      value = await WifiConfiguration.getWifiList();
+      print("get wifi list : " + available.toString());
+    } finally {
+      setState(() {
+        available = value;
+      });
+    }
+  }
+
+  void connect() async {
+    var value = await WifiConfiguration.connectToWifi(
+      ssidControl.text,
+      passControl.text,
+      "com.example.wifi_configuration_example",
+    );
+    setState(() {
+      connectionStatus = value;
+    });
   }
 }

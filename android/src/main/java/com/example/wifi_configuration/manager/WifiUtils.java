@@ -324,4 +324,8 @@ public final class WifiUtils implements WifiConnectorBuilder,
         }
         wifiLog("WiFi Disabled");
     }
+
+    public Boolean disconnect() {
+        return mWifiManager.disconnect();
+    }
 }

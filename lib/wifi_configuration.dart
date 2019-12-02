@@ -1,3 +1,4 @@
+
 import 'dart:async';
 
 import 'package:flutter/services.dart';
@@ -71,5 +72,9 @@ class WifiConfiguration {
     final String connectedWifiName =
         await _channel.invokeMethod('connectedToWifi');
     return connectedWifiName;
+  }
+
+  static Future<bool> disconnect() async {
+    return await _channel.invokeMethod('disconnect');
   }
 }
