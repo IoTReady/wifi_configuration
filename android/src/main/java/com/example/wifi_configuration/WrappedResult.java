@@ -34,6 +34,9 @@ public class WrappedResult implements Result {
     }
 
     void logExc(IllegalStateException e) {
-        Log.i("WifiConfigurationPlugin", "Ignoring " + e + ", see flutter/flutter#29092.");
+        Log.i(
+                "WifiConfigurationPlugin",
+                "Ignoring exception: <" + e + ">. See https://github.com/flutter/flutter/issues/29092 for details."
+        );
     }
 }
